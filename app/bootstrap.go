@@ -21,8 +21,8 @@ func InitApplication(db *gorm.DB, rabbitConn *amqp.Connection, validate *validat
 
 	log.Println("Creating LocationService")
 	vehicleMQTTController := controller.NewVehicleMQTTController(
-		service.NewLocationService(
-			repository.NewLocationRepository(),
+		service.NewVehicleService(
+			repository.NewVehicleRepository(),
 			db,
 			rabbitConn,
 			validate,

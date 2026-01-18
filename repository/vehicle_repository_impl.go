@@ -7,17 +7,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type locationRepositoryImpl struct{}
+type vehicleRepositoryImpl struct{}
 
-func NewLocationRepository() LocationRepository {
-	return &locationRepositoryImpl{}
+func NewVehicleRepository() VehicleRepository {
+	return &vehicleRepositoryImpl{}
 }
 
-func (r *locationRepositoryImpl) SaveLocation(ctx context.Context, tx *gorm.DB, loc domain.VehicleLocation) error {
+func (r *vehicleRepositoryImpl) SaveLocation(ctx context.Context, tx *gorm.DB, loc domain.VehicleLocation) error {
 	return tx.WithContext(ctx).Create(&loc).Error
 }
 
-func (r *locationRepositoryImpl) FindLatestByVehicleID(ctx context.Context, tx *gorm.DB, vehicleID string) (*domain.VehicleLocation, error) {
+func (r *vehicleRepositoryImpl) FindLatestByVehicleID(ctx context.Context, tx *gorm.DB, vehicleID string) (*domain.VehicleLocation, error) {
 	var loc domain.VehicleLocation
 
 	err := tx.WithContext(ctx).
@@ -33,7 +33,7 @@ func (r *locationRepositoryImpl) FindLatestByVehicleID(ctx context.Context, tx *
 	return &loc, nil
 }
 
-func (r *locationRepositoryImpl) FindHistory(ctx context.Context, tx *gorm.DB, vehicleID string, start int64, end int64) ([]domain.VehicleLocation, error) {
+func (r *vehicleRepositoryImpl) FindHistory(ctx context.Context, tx *gorm.DB, vehicleID string, start int64, end int64) ([]domain.VehicleLocation, error) {
 	var locations []domain.VehicleLocation
 
 	err := tx.WithContext(ctx).

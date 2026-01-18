@@ -15,28 +15,28 @@ import (
 	"gorm.io/gorm"
 )
 
-type LocationServiceImpl struct {
-	Repo       repository.LocationRepository
-	DB         *gorm.DB
-	RabbitConn *amqp.Connection
-	Validate   *validator.Validate
+type VehicleServiceImpl struct {
+	VehicleRepository repository.VehicleRepository
+	DB                *gorm.DB
+	RabbitConn        *amqp.Connection
+	Validate          *validator.Validate
 }
 
-func NewLocationService(
-	repo repository.LocationRepository,
+func NewVehicleService(
+	vehicleRepository repository.VehicleRepository,
 	db *gorm.DB,
 	rabbitConn *amqp.Connection,
 	validate *validator.Validate,
-) LocationService {
-	return &LocationServiceImpl{
-		Repo:       repo,
-		DB:         db,
-		RabbitConn: rabbitConn,
-		Validate:   validate,
+) VehicleService {
+	return &VehicleServiceImpl{
+		VehicleRepository: vehicleRepository,
+		DB:                db,
+		RabbitConn:        rabbitConn,
+		Validate:          validate,
 	}
 }
 
-func (s *LocationServiceImpl) SaveLocation(ctx context.Context, request web.VehicleLocationCreateRequest) (err error) {
+func (s *VehicleServiceImpl) SaveLocation(ctx context.Context, request web.VehicleLocationCreateRequest) (err error) {
 	if err = s.Validate.Struct(request); err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (s *LocationServiceImpl) SaveLocation(ctx context.Context, request web.Vehi
 		Timestamp: request.Timestamp,
 	}
 
-	err = s.Repo.SaveLocation(ctx, tx, newVehicleLocation)
+	err = s.VehicleRepository.SaveLocation(ctx, tx, newVehicleLocation)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (s *LocationServiceImpl) SaveLocation(ctx context.Context, request web.Vehi
 	return nil
 }
 
-func (s *LocationServiceImpl) publishToRabbitMQ(event web.GeofenceEvent) error {
+func (s *VehicleServiceImpl) publishToRabbitMQ(event web.GeofenceEvent) error {
 	ch, err := s.RabbitConn.Channel()
 	if err != nil {
 		return err
@@ -121,4 +121,36 @@ func (s *LocationServiceImpl) publishToRabbitMQ(event web.GeofenceEvent) error {
 			Body:        body,
 		},
 	)
+}
+
+func (s *VehicleServiceImpl) FindLatestByVehicleID(ctx context.Context, vehicleID string) (web.VehicleLocationResponse, error) {
+	location, err := s.VehicleRepository.FindLatestByVehicleID(ctx, s.DB, vehicleID)
+	if err != nil {
+		return web.VehicleLocationResponse{}, err
+	}
+
+	return web.VehicleLocationResponse{
+		VehicleID: location.VehicleID,
+		Latitude:  location.Latitude,
+		Longitude: location.Longitude,
+		Timestamp: location.Timestamp,
+	}, nil
+}
+
+func (s *VehicleServiceImpl) GetHistory(ctx context.Context, vehicleID string, start, end int64) ([]web.VehicleLocationResponse, error) {
+	locations, err := s.VehicleRepository.FindHistory(ctx, s.DB, vehicleID, start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []web.VehicleLocationResponse
+	for _, loc := range locations {
+		responses = append(responses, web.VehicleLocationResponse{
+			VehicleID: loc.VehicleID,
+			Latitude:  loc.Latitude,
+			Longitude: loc.Longitude,
+			Timestamp: loc.Timestamp,
+		})
+	}
+	return responses, nil
 }

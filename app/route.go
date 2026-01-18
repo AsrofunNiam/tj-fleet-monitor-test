@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	// "github.com/AsrofunNiam/tj-fleet-monitor-test/route"
 	"github.com/AsrofunNiam/tj-fleet-monitor-test/exception"
+	"github.com/AsrofunNiam/tj-fleet-monitor-test/route"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	amqp "github.com/rabbitmq/amqp091-go"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,7 @@ func ErrorHandler() gin.HandlerFunc {
 	}
 }
 
-func NewRouter(db *gorm.DB, validate *validator.Validate) *gin.Engine {
+func NewRouter(db *gorm.DB, rabbitConn *amqp.Connection, validate *validator.Validate) *gin.Engine {
 
 	router := gin.New()
 
@@ -33,7 +34,7 @@ func NewRouter(db *gorm.DB, validate *validator.Validate) *gin.Engine {
 	router.UseRawPath = true
 
 	// route path
-	// route.UserRoute(router, db, validate)
+	route.VehicleRoute(router, db, rabbitConn, validate)
 
 	return router
 }

@@ -11,12 +11,12 @@ import (
 )
 
 type VehicleMQTTControllerImpl struct {
-	LocationService service.LocationService
+	VehicleService service.VehicleService
 }
 
-func NewVehicleMQTTController(locationService service.LocationService) VehicleMQTTController {
+func NewVehicleMQTTController(locationService service.VehicleService) VehicleMQTTController {
 	return &VehicleMQTTControllerImpl{
-		LocationService: locationService,
+		VehicleService: locationService,
 	}
 }
 
@@ -28,7 +28,7 @@ func (c *VehicleMQTTControllerImpl) HandleLocation(client mqtt.Client, msg mqtt.
 		return
 	}
 
-	err := c.LocationService.SaveLocation(context.Background(), payload)
+	err := c.VehicleService.SaveLocation(context.Background(), payload)
 	if err != nil {
 		log.Println("failed save location:", err)
 	}

@@ -23,7 +23,7 @@ func main() {
 
 	validate := validator.New()
 
-	router := app.NewRouter(db, validate)
+	router := app.NewRouter(db, rabbitConn, validate)
 
 	go app.InitApplication(db, rabbitConn, validate, cfg.MQTTBroker)
 
