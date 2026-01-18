@@ -12,9 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//  Handle  mqqt route
-
-// ErrorHandler
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {

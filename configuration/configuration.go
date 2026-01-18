@@ -14,10 +14,8 @@ type Configuration struct {
 	Db            string `mapstructure:"DATABASE_DB"`
 	EncryptionKey string `mapstructure:"ENCRYPTION_KEY"`
 
-	// connection to redis
-	RedisHost     string `mapstructure:"REDIS_HOST"`
-	RedisPort     string `mapstructure:"REDIS_PORT"`
-	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+	RabbitMQURL string `mapstructure:"RABBITMQ_URL"`
+	MQTTBroker  string `mapstructure:"MQTT_BROKER"`
 }
 
 func LoadConfig() (config Configuration, err error) {

@@ -4,14 +4,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func CommitOrRollback(tx *gorm.DB) {
-	err := recover()
-	if err != nil {
-		errorRollback := tx.Rollback().Error
-		PanicIfError(errorRollback)
-		panic(err)
+func CommitOrRollback(tx *gorm.DB, err *error) {
+	if r := recover(); r != nil {
+		tx.Rollback()
+		panic(r)
+	} else if *err != nil {
+		tx.Rollback()
 	} else {
-		errorCommit := tx.Commit().Error
-		PanicIfError(errorCommit)
+		tx.Commit()
 	}
 }

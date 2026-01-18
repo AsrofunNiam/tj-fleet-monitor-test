@@ -15,18 +15,17 @@ func main() {
 		log.Fatalln("Failed at config", err)
 	}
 
-	db := app.ConnectDatabase(
-		cfg.User,
-		cfg.Host,
-		cfg.Password,
-		cfg.PortDB,
-		cfg.Db,
-	)
+	db := app.ConnectDatabase(cfg.User, cfg.Host, cfg.Password, cfg.PortDB, cfg.Db)
+
+	// RabbitMQ
+	rabbitConn := app.NewRabbitMQConnection(cfg.RabbitMQURL)
+	defer rabbitConn.Close()
 
 	validate := validator.New()
+
 	router := app.NewRouter(db, validate)
 
-	go app.InitApplication(db)
+	go app.InitApplication(db, rabbitConn, validate, cfg.MQTTBroker)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,

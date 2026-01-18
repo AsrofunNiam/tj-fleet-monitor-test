@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/AsrofunNiam/tj-fleet-monitor-test/model/domain"
+	"github.com/AsrofunNiam/tj-fleet-monitor-test/model/web"
 	"github.com/AsrofunNiam/tj-fleet-monitor-test/service"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -21,7 +21,7 @@ func NewVehicleMQTTController(locationService service.LocationService) VehicleMQ
 }
 
 func (c *VehicleMQTTControllerImpl) HandleLocation(client mqtt.Client, msg mqtt.Message) {
-	var payload domain.VehicleLocation
+	var payload web.VehicleLocationCreateRequest
 
 	if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
 		log.Println("invalid payload:", err)
