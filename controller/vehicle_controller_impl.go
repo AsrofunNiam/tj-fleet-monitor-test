@@ -36,9 +36,10 @@ func (controller *VehicleControllerImpl) GetHistory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, web.WebResponse{
-		Success: true,
-		Message: "Data found",
-		Data:    historyResponses,
+		Success:   true,
+		Message:   "Data found",
+		TotalData: len(historyResponses),
+		Data:      historyResponses,
 	})
 }
 

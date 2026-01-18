@@ -96,6 +96,7 @@ func (s *VehicleServiceImpl) publishToRabbitMQ(event web.GeofenceEvent) error {
 	}
 	defer ch.Close()
 
+	// Declare Exchange
 	err = ch.ExchangeDeclare(
 		"fleet.events", // name
 		"direct",       // type
@@ -109,8 +110,34 @@ func (s *VehicleServiceImpl) publishToRabbitMQ(event web.GeofenceEvent) error {
 		return err
 	}
 
+	// Declare Queue
+	q, err := ch.QueueDeclare(
+		"geofence_alerts", // name queue
+		true,              // durable
+		false,             // delete when unused
+		false,             // exclusive
+		false,             // no-wait
+		nil,               // arguments
+	)
+	if err != nil {
+		return err
+	}
+
+	// Binding Exchange
+	err = ch.QueueBind(
+		q.Name,            // geofence_alerts
+		"geofence_alerts", // routing key
+		"fleet.events",    // exchange name
+		false,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
 	body, _ := json.Marshal(event)
 
+	// Publish
 	return ch.Publish(
 		"fleet.events",    // exchange
 		"geofence_alerts", // routing key

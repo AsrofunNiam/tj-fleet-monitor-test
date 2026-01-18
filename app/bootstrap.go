@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/AsrofunNiam/tj-fleet-monitor-test/controller"
+	"github.com/AsrofunNiam/tj-fleet-monitor-test/helper"
 	"github.com/AsrofunNiam/tj-fleet-monitor-test/repository"
 	route "github.com/AsrofunNiam/tj-fleet-monitor-test/route"
 	"github.com/AsrofunNiam/tj-fleet-monitor-test/service"
@@ -32,7 +33,10 @@ func InitApplication(db *gorm.DB, rabbitConn *amqp.Connection, validate *validat
 	mqttRoute := route.NewMQTTRoute(vehicleMQTTController)
 
 	log.Println("Connecting MQTT")
-	NewMQTTClient(mqttRoute, mqqtBroker)
+	client := NewMQTTClient(mqttRoute, mqqtBroker)
 
 	log.Println("MQTT connected")
+
+	// Simulator
+	go helper.RunVehicleSimulator(client)
 }

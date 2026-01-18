@@ -23,8 +23,10 @@ func main() {
 
 	validate := validator.New()
 
+	// Gin
 	router := app.NewRouter(db, rabbitConn, validate)
 
+	// MQTT
 	go app.InitApplication(db, rabbitConn, validate, cfg.MQTTBroker)
 
 	server := &http.Server{
