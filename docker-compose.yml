@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: fleet-backend
+    volumes:
+      - ./configuration/.env:/app/configuration/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mosquitto
+      - rabbitmq
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: fleet
+      MQTT_BROKER: tcp://mosquitto:1883
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: fleet-postgres
+    environment:
+      POSTGRES_DB: fleet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: fleet-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fleet-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  pgdata:
